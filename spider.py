@@ -3,7 +3,7 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin , urlparse
-
+from pprint import pprint
 
 args_length = len(sys.argv)
 options = sys.argv
@@ -11,11 +11,29 @@ is_recursive = False
 depth = 5
 path = "./data/"
 target = None
+images = None
+links = None
+
+def get_links_of_links(target, depth):
+    
+    if depth <= 0:
+        return
+    
+    for link in target:
+        if link.startswith("http"):
+            page = requests.get(link)
+            soup = BeautifulSoup(page.content, 'html5lib')
+            tmp_target = [a['href'] for a in soup.find_all('a', href=True)]
+            images = soup.find_all("img", src=True)
+            download_images(link, images)
+            if not is_recursive:
+                return
+            get_links_of_links(tmp_target, depth - 1)
 
 def is_integer (value):
     try:
-        if int(value):
-            return True
+        int(value)
+        return True
     except ValueError:
         return False
 
@@ -27,9 +45,6 @@ while i < args_length:
         if i + 1 < args_length and is_integer(options[i + 1]):
             depth = int(options[i + 1])
             i += 1
-        else:
-            print("Invalid depth value for -l. Please provide a valid integer.")
-            exit(1)
     elif options[i] == '-p':
         if i + 1 < args_length and os.path.isdir(options[i + 1]):
             path = options[i + 1]
@@ -39,7 +54,7 @@ while i < args_length:
             exit(1)
     else:
         if target is None:
-            target = options[i]
+            target = [options[i]]
         else:
             print("Multiple URLs provided. Only one target URL is allowed.")
             exit(1)
@@ -53,43 +68,41 @@ if target is None:
 # At this point, `is_recursive`, `depth`, `path`, and `target` are set.
 print(f"Recursive: {is_recursive}, Depth: {depth}, Save Path: {path}, Target URL: {target}")
 
+# Create data folder for storing images if no path is provided
+if not os.path.exists(path):
+    os.makedirs(path)
 
 # List of supported image file extensions
 supported_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp')
 
-# URL = "https://www.hola.com/"
-page = requests.get(target)
+def download_images(link, images):
 
-soup = BeautifulSoup(page.content, 'html5lib')
+    for image in images:
+        full_url = urljoin(link, image["src"])
 
-images = soup.find_all("img")
+        image_name = os.path.basename(urlparse(full_url).path).split('?')[0]
 
-# Directory where the images will be saved
-image_dir = "./downloads"
-if not os.path.exists(path):
-    os.makedirs(path)
+        # Check if the file extension is one of the supported types
+        if not image_name.lower().endswith(supported_extensions):
+            print(f"Skipping {image_name} (unsupported file type)")
+            continue
 
-for image in images:
-    full_url = urljoin(target, image["src"])
+        image_path = os.path.join(path, image_name)
 
-    image_name = os.path.basename(urlparse(full_url).path).split('?')[0]
+        img_response = requests.get(full_url)
 
-    # Check if the file extension is one of the supported types
-    if not image_name.lower().endswith(supported_extensions):
-        print(f"Skipping {image_name} (unsupported file type)")
-        continue
+        try:
+            if img_response.status_code == 200:
+                with open(image_path, "wb") as file:
+                    file.write(img_response.content)
+                print(f"Downloaded {image_name}")
+            else:
+                print(f"Failed to download {full_url} {image_name}. HTTP status code: {img_response.status_code}")
+        except Exception as e:
+            print(f"Error downloading {image_name}: {e}")
 
-    image_path = os.path.join(path, image_name)
+    
+get_links_of_links(target, depth)
 
 
-    img_response = requests.get(full_url)
 
-    try:
-        if img_response.status_code == 200:
-            with open(image_path, "wb") as file:
-                file.write(img_response.content)
-            print(f"Downloaded {image_name}")
-        else:
-            print(f"Failed to download {full_url} {image_name}. HTTP status code: {img_response.status_code}")
-    except Exception as e:
-        print(f"Error downloading {image_name}: {e}")
