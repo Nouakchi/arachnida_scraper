@@ -14,6 +14,33 @@ target = None
 images = None
 links = None
 
+def download_images(link, images):
+
+    for image in images:
+        full_url = urljoin(link, image["src"])
+
+        image_name = os.path.basename(urlparse(full_url).path).split('?')[0]
+
+        # Check if the file extension is one of the supported types
+        if not image_name.lower().endswith(supported_extensions):
+            print(f"Skipping {image_name} (unsupported file type)")
+            continue
+
+        image_path = os.path.join(path, image_name)
+
+        img_response = requests.get(full_url)
+
+        try:
+            if img_response.status_code == 200:
+                with open(image_path, "wb") as file:
+                    file.write(img_response.content)
+                print(f"Downloaded {image_name}")
+            else:
+                print(f"Failed to download {full_url} {image_name}. HTTP status code: {img_response.status_code}")
+        except Exception as e:
+            print(f"Error downloading {image_name}: {e}")
+
+# loop through every single link and extract all links and download images linked to those links (recursive scraping)
 def get_links_of_links(target, depth):
     
     if depth <= 0:
@@ -37,6 +64,7 @@ def is_integer (value):
     except ValueError:
         return False
 
+# Parsing the given options: -r -l [N] -p [PATH] [URL]
 i = 1
 while i < args_length:
     if options[i] == '-r':
@@ -75,33 +103,8 @@ if not os.path.exists(path):
 # List of supported image file extensions
 supported_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp')
 
-def download_images(link, images):
 
-    for image in images:
-        full_url = urljoin(link, image["src"])
-
-        image_name = os.path.basename(urlparse(full_url).path).split('?')[0]
-
-        # Check if the file extension is one of the supported types
-        if not image_name.lower().endswith(supported_extensions):
-            print(f"Skipping {image_name} (unsupported file type)")
-            continue
-
-        image_path = os.path.join(path, image_name)
-
-        img_response = requests.get(full_url)
-
-        try:
-            if img_response.status_code == 200:
-                with open(image_path, "wb") as file:
-                    file.write(img_response.content)
-                print(f"Downloaded {image_name}")
-            else:
-                print(f"Failed to download {full_url} {image_name}. HTTP status code: {img_response.status_code}")
-        except Exception as e:
-            print(f"Error downloading {image_name}: {e}")
-
-    
+# RUN
 get_links_of_links(target, depth)
 
 
