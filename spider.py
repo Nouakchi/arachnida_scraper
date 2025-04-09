@@ -1,9 +1,12 @@
 import os
+import re
 import sys
+import time
 import requests
+from selenium import webdriver
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin , urlparse
-from pprint import pprint
+from urllib.parse import unquote
+from urllib.parse import urljoin
 
 args_length = len(sys.argv)
 options = sys.argv
@@ -14,12 +17,18 @@ target = None
 images = None
 links = None
 
-def download_images(link, images):
 
+def extract_image_filename(s):
+    decoded = unquote(s)
+    match = re.search(r'([a-zA-Z0-9_\-\.]+)\.(jpg|jpeg|png|gif|bmp)', decoded, re.IGNORECASE)
+    if match:
+        return f"{match.group(1)}.{match.group(2)}"
+    return ""
+
+def download_images(link, images):
     for image in images:
         full_url = urljoin(link, image["src"])
-
-        image_name = os.path.basename(urlparse(full_url).path).split('?')[0]
+        image_name = extract_image_filename(full_url)
 
         # Check if the file extension is one of the supported types
         if not image_name.lower().endswith(supported_extensions):
@@ -48,8 +57,13 @@ def get_links_of_links(target, depth):
     
     for link in target:
         if link.startswith("http"):
-            page = requests.get(link)
-            soup = BeautifulSoup(page.content, 'html5lib')
+            driver.get(link)
+
+            # Wait for JS to render
+            time.sleep(5)
+
+            page = driver.page_source
+            soup = BeautifulSoup(page, 'html5lib')
             tmp_target = [a['href'] for a in soup.find_all('a', href=True)]
             images = soup.find_all("img", src=True)
             download_images(link, images)
@@ -105,7 +119,9 @@ supported_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp')
 
 
 # RUN
+driver = webdriver.Chrome()
 get_links_of_links(target, depth)
+driver.quit()
 
 
 
