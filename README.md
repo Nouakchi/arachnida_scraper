@@ -57,12 +57,13 @@ python spider.py -r -l 2 -p ./images http://example.com
 This command downloads all images from http://example.com, including images from pages linked up to 2 levels deep, and saves them in the ./images/ directory.
 
 ## 📁 Example Project Structure
-
+```bash
 python-spider/
 ├── spider.py
 ├── requirements.txt
 ├── README.md
 └── data/
+```
 
 ## 🛠️ Requirements
 
