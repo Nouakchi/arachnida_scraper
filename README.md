@@ -2,6 +2,8 @@
 
 This Python script downloads image files from a given URL. It supports recursive downloading with configurable depth and allows specifying the output path.
 
+![Description](assets/banner.png)
+
 ## 📦 Features
 
 - Download images from a single target URL
