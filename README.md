@@ -23,21 +23,25 @@ This Python script downloads image files from a given URL. It supports recursive
 ```bash
 git clone https://github.com/Nouakchi/arachnida_scraper.git arachnida_scraper
 cd arachnida_scraper
+```
+### 2. Create a Virtual Environment
 
-2. Create a Virtual Environment
-
+```bash
 python3 -m venv venv
 source venv/bin/activate
-
+```
     On Windows:
-
+```bash
 venv\Scripts\activate
+```
 
-3. Install Dependencies
+### 3. Install Dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
-🧪 Usage
+## 🧪 Usage
 
 python spider.py [OPTIONS] URL
 
@@ -51,7 +55,8 @@ Option	Description
 python spider.py -r -l 2 -p ./images http://example.com
 
 This command downloads all images from http://example.com, including images from pages linked up to 2 levels deep, and saves them in the ./images/ directory.
-📁 Example Project Structure
+
+## 📁 Example Project Structure
 
 python-spider/
 ├── spider.py
@@ -59,7 +64,7 @@ python-spider/
 ├── README.md
 └── data/
 
-🛠️ Requirements
+## 🛠️ Requirements
 
     Python 3.6 or higher
 
