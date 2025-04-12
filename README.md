@@ -1,20 +1,22 @@
-# 🕷️ Arachnida Scraper - Image Downloader
+# 🕷️ Arachnida Scraper - Image Downloader - EXIF Extractor
 
-This Python script downloads image files from a given URL. It supports recursive downloading with configurable depth and allows specifying the output path.
+This `SPIDER` script downloads image files from a given URL. It supports recursive downloading with configurable depth and allows specifying the output path.
+
+this `SCORPION` script extract exif metadata from a given image.
 
 ![Description](assets/banner.png)
 
 ## 📦 Features
 
-- Download images from a single target URL
-- Recursively crawl and download from linked pages (`-r`)
-- Set recursion depth (`-l [N]`, default: 5)
-- Choose where to save the downloaded files (`-p [PATH]`, default: `./data/`)
-- Supported image extensions:
-  - `.jpg`, `.jpeg`
-  - `.png`
-  - `.gif`
-  - `.bmp`
+- Download images from a single target URL (`spider`)
+- Recursively crawl and download from linked pages (`-r`) (`spider`)
+- Set recursion depth (`-l [N]`, default: 5) (`spider`)
+- Choose where to save the downloaded files (`-p [PATH]`, default: `./data/`) (`spider`)
+- Supported image extensions: `.jpg`, `.jpeg`, `.png`, `.gif`, `.bmp` (`spider`)
+- Extract EXIF metadata from downloaded images (`scorpion`)
+- Display EXIF information such as camera details, geolocation, etc. (`scorpion`)
+- Option to save or display EXIF thumbnail (`scorpion`)
+
 
 ---
 
@@ -32,15 +34,11 @@ cd arachnida_scraper
 python3 -m venv venv
 source venv/bin/activate
 ```
-    On Windows:
-```bash
-venv\Scripts\activate
-```
 
 ### 3. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r modules/requirements.txt
 ```
 
 ## 🧪 Usage
@@ -61,10 +59,22 @@ This command downloads all images from http://example.com, including images from
 ## 📁 Example Project Structure
 ```bash
 python-spider/
-├── spider.py
-├── requirements.txt
+├── assets
+│   ├── banner.png
+│   ├── test1.jpg
+│   ├── test2.jpg
+│   └── test3.jpg
+├── modules
+│   └── requirements.txt
 ├── README.md
-└── data/
+├── scripts
+│   ├── scorpion.py
+│   └── spider.py
+└── src
+    ├── 1.html
+    ├── 2.html
+    └── 3.html
+
 ```
 
 ## 🛠️ Requirements
